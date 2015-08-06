@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plugin_quividi", "plugin_quividi\plugin_quividi.vcxproj", "{6EC27334-8022-4FC7-BFE0-32A202D1A91C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B} = {DD35551A-ACB7-4B93-9629-8628E6FE943B}
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988} = {58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{DD35551A-ACB7-4B93-9629-8628E6FE943B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplicationForm", "TestApplicationForm\TestApplicationForm.csproj", "{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6EC27334-8022-4FC7-BFE0-32A202D1A91C}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{6EC27334-8022-4FC7-BFE0-32A202D1A91C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6EC27334-8022-4FC7-BFE0-32A202D1A91C}.Debug|Win32.Build.0 = Debug|Win32
+		{6EC27334-8022-4FC7-BFE0-32A202D1A91C}.Release|Any CPU.ActiveCfg = Release|Win32
+		{6EC27334-8022-4FC7-BFE0-32A202D1A91C}.Release|Win32.ActiveCfg = Release|Win32
+		{6EC27334-8022-4FC7-BFE0-32A202D1A91C}.Release|Win32.Build.0 = Release|Win32
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Debug|Win32.Build.0 = Debug|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Release|Win32.ActiveCfg = Release|Any CPU
+		{DD35551A-ACB7-4B93-9629-8628E6FE943B}.Release|Win32.Build.0 = Release|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Debug|Win32.Build.0 = Debug|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Release|Win32.ActiveCfg = Release|Any CPU
+		{58831D1B-9F58-4DCD-AD4B-DCCD93FFC988}.Release|Win32.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
