@@ -21,7 +21,7 @@ const unsigned char CInfoManager::MSG_SPLIT_MAGIC_WORD[2] = { 0xFE, 0xCA };
 
 CInfoManager::CInfoManager()
 {
-	m_watchers = new std::map<int, WatcherMsgStruct>();
+	
 }
 
 void CInfoManager::Start(const char *mode, const char *hostName, int hostPort)
@@ -30,6 +30,10 @@ void CInfoManager::Start(const char *mode, const char *hostName, int hostPort)
 	{
 		if (!m_executeDone) return;
 	}
+
+#ifdef WIN32
+	system("cls");
+#endif
 
 	// set server parameters
 	m_mode = mode;
@@ -46,10 +50,23 @@ void CInfoManager::Stop()
 	if (m_mainThread == nullptr) return;
 	
 	m_executeThread = false;
-	m_mainThread = nullptr;
 
-	m_watchers->clear();
+	if (m_mainThread != nullptr)
+	{
+		m_mainThread->detach();
+		delete m_mainThread;
+		m_mainThread = nullptr;
+	}
 
+	if (m_watchers != nullptr)
+	{
+		delete m_watchers;
+		m_watchers = nullptr;
+	}
+
+#ifdef WIN32
+	system("cls");
+#endif
 	printf("Thread stopped.\n");
 }
 
@@ -59,11 +76,18 @@ int CInfoManager::GetWatchersCount()
 	{
 		if (m_executeDone)
 		{
+			if (m_mainThread != nullptr)
+			{
+				m_mainThread->detach();
+				delete m_mainThread;
+			}
 			m_mainThread = nullptr;
 		}
 		return -1;
 	}
-	return m_watchers->size();
+	
+	if (m_watchers == nullptr) return -1;
+	else return (int)m_watchers->size();
 }
 
 void CInfoManager::ThreadFunction()
@@ -77,7 +101,7 @@ void CInfoManager::ThreadFunction()
 	__int64 timestamp;
 
 	// Parameters for socket connection retry
-	int MAX_NB_TRY = 2;
+	int MAX_NB_TRY = 1;
 	int RETRY_DELAY = 3;
 
 	CInfoManager *infoManager = CInfoManager::GetInstance();
@@ -102,7 +126,8 @@ void CInfoManager::ThreadFunction()
 		if (err != 0)
 		{
 			fprintf(stderr, "Couldn't not find a usable WinSock DLL");
-			exit(-1);
+			infoManager->m_executeDone = true;
+			return;
 		}
 	}
 #endif
@@ -131,11 +156,18 @@ void CInfoManager::ThreadFunction()
 			printf("Connection failed... retrying...\n");
 			Sleep(1000 * RETRY_DELAY);
 		}
+
+		if (!infoManager->m_executeThread)
+		{
+			infoManager->m_executeDone = true;
+			return;
+		}
 	}
 	if (n == MAX_NB_TRY)
 	{
 		fprintf(stderr, "Unable to connect to socket\n");
-		exit(-1);
+		infoManager->m_executeDone = true;
+		return;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +192,15 @@ void CInfoManager::ThreadFunction()
 	{
 		fprintf(stderr, "Could not send configuration message.\n");
 		closesocket(Socket);
-		exit(-1);
+		
+		infoManager->m_executeDone = true;
+		return;
+	}
+
+	// allocate watchers array
+	if (infoManager->m_watchers == nullptr)
+	{
+		infoManager->m_watchers = new std::map<int, WatcherMsgStruct>();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +278,7 @@ void CInfoManager::ThreadFunction()
 			printf("VIEWER_EVENT_MSG\n");
 			if (infoManager->Header.Payload != sizeof(WatcherMsg))
 			{
-				printf("Wrong payload size! (received %d, expected %d)\n\n",
+				printf("Wrong payload size! (received %d, expected %zd)\n\n",
 					infoManager->Header.Payload, sizeof(WatcherMsg));
 				continue;
 			}
@@ -335,7 +375,7 @@ void CInfoManager::ThreadFunction()
 			printf("MOTION_EVENT_MSG\n");
 			if (infoManager->Header.Payload != sizeof(MotionMsg))
 			{
-				printf("Wrong payload size! (received %d, expected %d)\n\n",
+				printf("Wrong payload size! (received %d, expected %zd)\n\n",
 					infoManager->Header.Payload, sizeof(MotionMsg));
 				continue;
 			}
@@ -396,7 +436,7 @@ void CInfoManager::ThreadFunction()
 			printf("OTS_EVENT_MSG:\n");
 			if (infoManager->Header.Payload != sizeof(OTSMsg))
 			{
-				printf("Wrong payload size! (received %d, expected %d)\n\n",
+				printf("Wrong payload size! (received %d, expected %zd)\n\n",
 					infoManager->Header.Payload, sizeof(OTSMsg));
 				continue;
 			}
@@ -415,7 +455,7 @@ void CInfoManager::ThreadFunction()
 			printf("OVERHEAD_EVENT_MSG:\n");
 			if (infoManager->Header.Payload != sizeof(OverheadEvent))
 			{
-				printf("Wrong payload size! (received %d, expected %d)\n\n",
+				printf("Wrong payload size! (received %d, expected %zd)\n\n",
 					infoManager->Header.Payload, sizeof(OverheadEvent));
 				continue;
 			}
@@ -448,7 +488,7 @@ void CInfoManager::ThreadFunction()
 			printf("GATE_COUNT_MSG:\n");
 			if (infoManager->Header.Payload != sizeof(GateCount))
 			{
-				printf("Wrong payload size! (received %d, expected %d)\n\n",
+				printf("Wrong payload size! (received %d, expected %zd)\n\n",
 					infoManager->Header.Payload, sizeof(GateCount));
 				continue;
 			}
@@ -476,7 +516,7 @@ void CInfoManager::ThreadFunction()
 			printf("GATE_SNAPSHOT_MSG:\n");
 			if (infoManager->Header.Payload != sizeof(GateSnapshot))
 			{
-				printf("Wrong payload size! (received %d, expected %d)\n\n",
+				printf("Wrong payload size! (received %d, expected %zd)\n\n",
 					infoManager->Header.Payload, sizeof(GateSnapshot));
 				continue;
 			}
@@ -505,6 +545,9 @@ void CInfoManager::ThreadFunction()
 	////////////////////////////////////////////////////////////////////////////////////
 	// Disconnect
 	closesocket(Socket);
+
+	if (infoManager->m_watchers!=nullptr) delete infoManager->m_watchers;
+	infoManager->m_watchers = nullptr;
 
 	infoManager->m_executeDone = true;
 }
