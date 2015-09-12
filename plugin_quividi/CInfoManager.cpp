@@ -32,7 +32,7 @@ void CInfoManager::Start(const char *mode, const char *hostName, int hostPort)
 	}
 
 #ifdef WIN32
-	system("cls");
+	//system("cls");
 #endif
 
 	// set server parameters
@@ -65,7 +65,7 @@ void CInfoManager::Stop()
 	}
 
 #ifdef WIN32
-	system("cls");
+	//system("cls");
 #endif
 	printf("Thread stopped.\n");
 }
