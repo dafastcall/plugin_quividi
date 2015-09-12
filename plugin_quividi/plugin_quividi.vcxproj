@@ -70,20 +70,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <OutDir>D:\dev\Sber_DVFU\project\Assets\Plugins\</OutDir>
+    <OutDir>D:\dev\Sber_DVFU\project\Assets\Plugins\Quividi\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)</TargetName>
-    <OutDir>$(SolutionDir)\..\project\Assets\Plugins\</OutDir>
+    <OutDir>$(SolutionDir)\..\project\Assets\Plugins\Quividi\x64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>D:\dev\Sber_DVFU\project\Assets\Plugins\</OutDir>
+    <OutDir>$(SolutionDir)\..\project\Assets\Plugins\Quividi\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\..\project\Assets\Plugins\</OutDir>
+    <OutDir>$(SolutionDir)\..\project\Assets\Plugins\Quividi\x64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
