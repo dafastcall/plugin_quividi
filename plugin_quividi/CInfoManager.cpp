@@ -1,20 +1,27 @@
-#include "stdafx.h"
 #include "CInfoManager.h"
 
 #include <stdio.h>
 #include <errno.h>
 #include <time.h>
-#include <conio.h>
 
 #ifdef WIN32
-#include <winsock.h>
+	#include <conio.h>
+	#include <winsock.h>
 #else
-#include <unistd.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+	#include <unistd.h>
+	#include <netdb.h>
+	#include <arpa/inet.h>
+	#include <netinet/in.h>
+	#include <sys/socket.h>
+	#include <sys/types.h>
+	#include <inttypes.h>
+	#include <cstring>
+
+	#include <termios.h>
+	#include <unistd.h>
+	#include <fcntl.h>
+
+	#define SOCKET_ERROR -1
 #endif
 
 const unsigned char CInfoManager::MSG_SPLIT_MAGIC_WORD[2] = { 0xFE, 0xCA };
@@ -24,16 +31,58 @@ CInfoManager::CInfoManager()
 	
 }
 
+#ifndef WIN32
+int CInfoManager::kbhit(void)
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+ 
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+ 
+  ch = getchar();
+ 
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+ 
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+ 
+  return 0;
+}
+
+char CInfoManager::getch() 
+{
+  struct termios oldt, newt;
+  char ch;
+
+  tcgetattr(0, &oldt); /* grab old terminal i/o settings */
+  newt = oldt; /* make new settings same as old settings */
+  newt.c_lflag &= ~ICANON; /* disable buffered i/o */
+  newt.c_lflag &= ~ECHO; /* set echo mode */
+  tcsetattr(0, TCSANOW, &newt); /* use these new terminal i/o settings now */
+
+  ch = getchar();
+
+  tcsetattr(0, TCSANOW, &oldt);
+  return ch;
+}
+#endif
+
 void CInfoManager::Start(const char *mode, const char *hostName, int hostPort)
 {
 	if (m_mainThread != nullptr)
 	{
 		if (!m_executeDone) return;
 	}
-
-#ifdef WIN32
-	//system("cls");
-#endif
 
 	// set server parameters
 	m_mode = mode;
@@ -64,9 +113,6 @@ void CInfoManager::Stop()
 		m_watchers = nullptr;
 	}
 
-#ifdef WIN32
-	//system("cls");
-#endif
 	printf("Thread stopped.\n");
 }
 
@@ -98,7 +144,11 @@ void CInfoManager::ThreadFunction()
 
 	struct tm *newtime;
 	time_t aclock;
+#ifdef WIN32
 	__int64 timestamp;
+#else
+	int64_t timestamp;
+#endif
 
 	// Parameters for socket connection retry
 	int MAX_NB_TRY = 1;
@@ -135,12 +185,20 @@ void CInfoManager::ThreadFunction()
 	////////////////////////////////////////////////////////////////////////////////////
 	// create socket
 	printf("Creating socket...\n");
+#ifdef WIN32
 	SOCKET Socket = socket(AF_INET, SOCK_STREAM, 0);
+#else
+	int Socket = socket(AF_INET, SOCK_STREAM, 0);
+#endif
 	if (Socket == -1)
 		fprintf(stderr, "Unable to create socket\n");
 
 	// Prepare server address
+#ifdef WIN32
 	SOCKADDR_IN ServerAddress;
+#else
+	sockaddr_in ServerAddress;
+#endif
 	ServerAddress.sin_family = AF_INET;
 	ServerAddress.sin_port = htons(infoManager->m_serverPort);
 	ServerAddress.sin_addr.s_addr = (inet_addr(infoManager->m_serverHost.c_str()));
@@ -149,12 +207,19 @@ void CInfoManager::ThreadFunction()
 	printf("Connecting to %s:%d\n", infoManager->m_serverHost.c_str(), infoManager->m_serverPort);
 	for (n = 0; n < MAX_NB_TRY; n++)
 	{
-		if (connect(Socket, (SOCKADDR *)&ServerAddress, sizeof(ServerAddress)) == 0)
-			break;
+#ifdef WIN32
+		if (connect(Socket, (SOCKADDR *)&ServerAddress, sizeof(ServerAddress)) == 0) break;
+#else
+		if (connect(Socket, (sockaddr *)&ServerAddress, sizeof(ServerAddress)) == 0) break;
+#endif
 		else
 		{
 			printf("Connection failed... retrying...\n");
+#ifdef WIN32
 			Sleep(1000 * RETRY_DELAY);
+#else
+			sleep(1000 * RETRY_DELAY);
+#endif
 		}
 
 		if (!infoManager->m_executeThread)
@@ -191,7 +256,11 @@ void CInfoManager::ThreadFunction()
 	if (send(Socket, buf, sizeof(Header) + sizeof(ConfigMsg), 0) == 0)
 	{
 		fprintf(stderr, "Could not send configuration message.\n");
+#ifdef WIN32
 		closesocket(Socket);
+#else
+		close(Socket);
+#endif
 		
 		infoManager->m_executeDone = true;
 		return;
@@ -229,9 +298,13 @@ void CInfoManager::ThreadFunction()
 		}
 
 		if (!infoManager->m_executeThread) break;
-
+#ifdef WIN32
 		int k = _kbhit();
 		if (k && _getch() == 's')
+#else
+		int k = kbhit();
+		if (k && getch() == 's')
+#endif
 		{
 			printf("sending status request\n");
 			infoManager->Header.Type = STATUS_REQUEST_TYPE;
@@ -544,7 +617,11 @@ void CInfoManager::ThreadFunction()
 
 	////////////////////////////////////////////////////////////////////////////////////
 	// Disconnect
+#ifdef WIN32
 	closesocket(Socket);
+#else
+	close(Socket);
+#endif
 
 	if (infoManager->m_watchers!=nullptr) delete infoManager->m_watchers;
 	infoManager->m_watchers = nullptr;

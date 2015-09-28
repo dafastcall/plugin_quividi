@@ -1,13 +1,11 @@
 // plugin_quividi.cpp : Defines the exported functions for the DLL application.
 //
-
-#include "stdafx.h"
 #include "CInfoManager.h"
 
-#if _MSC_VER // this is defined when compiling with Visual Studio
-#define EXPORT_API __declspec(dllexport) // Visual Studio needs annotating exported functions with this
+#if WIN32
+#define EXPORT_API __declspec(dllexport) 
 #else
-#define EXPORT_API // XCode does not need annotating exported functions, so define is empty
+#define EXPORT_API
 #endif
 
 

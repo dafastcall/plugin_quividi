@@ -4,7 +4,11 @@
 #include <string>
 #include <thread>
 #include <map>
-#include <atomic>
+//#ifdef WIN32
+	#include <atomic>
+//#else
+//	#include <cstdatomic>
+//#endif
 
 class CInfoManager
 {
@@ -39,6 +43,7 @@ class CInfoManager
 
 	////////////////////////////////////////////////////////////////////////////////////
 	// Data structures
+#pragma pack(push)
 #pragma pack(1)
 
 	struct HeaderStruct
@@ -144,9 +149,10 @@ class CInfoManager
 		unsigned int TotalInCount;  ///< IN crossings
 		unsigned int TotalOutCount; ///< OUT crossings
 	} GateSnapshot;
+#pragma pack(pop)
 
-	std::atomic<bool> m_executeThread = true;
-	std::atomic<bool> m_executeDone = false;
+	std::atomic<bool> m_executeThread;
+	std::atomic<bool> m_executeDone;
 
 	std::thread *m_mainThread = nullptr;
 
@@ -174,6 +180,8 @@ private:
 	void operator=(CInfoManager const&) = delete;
 
 	static void ThreadFunction();
+	static int kbhit(void);
+	static char getch();
 };
 
 #endif
