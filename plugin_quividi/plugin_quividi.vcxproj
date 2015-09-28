@@ -69,8 +69,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>$(ProjectName)_d</TargetName>
-    <OutDir>D:\dev\Sber_DVFU\project\Assets\Plugins\Quividi\x86\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <OutDir>$(SolutionDir)\..\project\Assets\Plugins\Quividi\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -139,6 +139,9 @@
       <ProgramDatabaseFile />
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
+    <BuildLog>
+      <Path />
+    </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
